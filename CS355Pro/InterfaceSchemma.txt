@@ -1,0 +1,86 @@
+//Names: Gabrielle Luna and Michael Carr
+
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset="UTF-8">
+    <title> Citi Bike Database Schema </title>
+    <style>
+      body{
+      font-family: "Georgia";
+      color: #FFFFFF;
+      background-color: #2f2f5e;
+      padding: 5px;
+      border: 2px black;
+      }
+      #wrapper1 {
+      width: 100%;
+      border: 4px solid #FFFFFF;
+      overflow: hidden;
+      }
+      .titleBox1{
+      width: 60%;
+      text-align: left;
+      float: left;
+      }
+      #wrapper2{
+      width: 100%;
+      border: 4px solid #FFFFFF;
+      overflow:hidden;
+      }
+      .schema{
+      width: 100%;
+      float: left;
+      }
+    </style>
+  </head>
+  <body>
+    <div  id="wrapper1">
+      <div class = titleBox1>
+        <h1> Citi Bike Database Schema </h1>
+        <p> by Gabrielle Luna and Michael Carr </p>
+ </div>
+    </div>
+    <div id="wrapper2">
+      <div class = schema>
+        <table border = "center" bgcolor = "#222244" width = "80%" align = "cen\
+ter">
+          <tr>
+            <th colspan="10"> trip </th>
+          </tr>
+          <tr>
+            <td> tripID </td>
+            <td> startStationID </td>
+            <td> endStationID </td>
+            <td> tripDuration </td>
+            <td> startTime </td>
+            <td> stopTime </td>
+            <td> bikeID </td>
+            <td> userType </td>
+            <td> birthYear </td>
+            <td> gender </td>
+ </tr>
+        </table>
+        <br>
+        <br>
+        <table border = "center" bgcolor = "#222244" width = "80%" align = "cen\
+ter">
+          <tr>
+            <th colspan="4"> stations </th>
+          </tr>
+          <tr>
+            <td> stationID </td>
+            <td> stationName </td>
+            <td> stationLatitude </td>
+            <td> stationLongitude </td>
+          </tr>
+        </table>
+        <br><br>
+        <p> *tripDuration is measured in seconds <br> *user type is either an a\
+nnual subscriber or a 24 day Customer <br>
+          *gender (0 = unknown; 1 = male; 2 = female)</p>
+
+      </div>
+    </div>
+  </body>
+</html>

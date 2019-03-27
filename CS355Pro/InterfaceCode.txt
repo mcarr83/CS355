@@ -1,0 +1,168 @@
+//Names: Gabrielle Luna and Michael Carr
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Citi Bike Database</title>
+    <style>
+        body{
+            font-family: "Georgia";
+            color: #FFFFFF;
+            background-color: #2f2f5e;
+            padding: 5px;
+            border: 2px black;
+        }
+        a{
+        color: white;
+        }
+        a:link, visited{
+        background-color: #2f2fe;
+        padding: 5px 20px;
+        border: solid 4px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        }
+        a:hover{
+        background-color: #222244;
+        }
+
+        #wrapper1 {
+            width: 100%;
+            border: 4px solid #FFFFFF;
+            overflow: hidden;
+        }
+        .titleBox1{
+            width: 60%;
+            text-align: left;
+            float: left;
+        }
+ .titleBox2{
+            width: 30%;
+            text-align: right;
+            padding-top: 65px;
+            float: right;
+        }
+        #wrapper2 {
+            width: 100%;
+            border: 4px solid #FFFFFF;
+            overflow: hidden;
+        }
+        .schema
+        {   width: 100%;
+            float: left;
+            padding-left: 20px;
+        }
+
+        .sqlBox {
+            width: 100%;
+            height: 300px;
+            float: left;
+            text-align: center;
+        }
+        .resultsBox {
+            width: 100%;
+            height: 2000px;
+            float: left;
+        }
+    </style>
+</head>
+<body>
+
+<div id="wrapper1">
+        <div class = titleBox1>
+                <h1> Citi Bike Database </h1>
+                <p>by Gabrielle Luna and Michael Carr</p>
+        </div>
+ <div class = titleBox2>
+                <p>Connection:
+                        <?php
+                        $servername = "localhost";
+                        $username = "mcarr";
+                        $password = "ca9587";
+
+                        $link = mysqli_connect($servername, $username, $passwor\
+d);
+
+                        if(!$link)
+                        {       echo "Error, cannot find server.";
+                            exit();
+                        }
+
+                        if (!mysqli_set_charset($link, 'utf8'))
+                        {       echo "Error.";
+                                exit();
+                        }
+
+                        if (!mysqli_select_db($link, 'mcarr'))
+                        {   echo "Error, cannot find database.";
+                                exit();
+                        }
+
+                        echo "Successful";
+
+                        ?>
+                </p>
+        </div>
+</div>
+
+<div id="wrapper2">
+  <div class= schema >
+    <p> <a href="CitiBikeSchema.html">View Schema </a>  </p>
+    </div>
+ <div class="sqlBox">
+        <form action="?" method="POST">
+            <h2>Enter your SQL query:</h2>
+            <textarea name="sql_text" id = 'sql_text' rows="8" cols="50" ></tex\
+tarea>
+            <p></p>
+            <input type="submit" value="Submit" />
+                        <?php
+                                $result = mysqli_query($link, $_POST['sql_text'\
+]);
+                        ?>
+            <p>Errors:
+                        <?php
+                                if (!$result)
+                                {       echo mysqli_error($link);
+                                }
+                        ?>
+                        </p>
+        </form>
+    </div>
+
+    <div class="resultsBox">
+ <h2>Results
+          <?php
+            $rowCount = mysqli_num_rows($result);
+            $colCount = mysqli_num_fields($result);
+            if ($result)
+            { echo "(" . $rowCount . " rows returned, ";
+              echo $colCount . " fields returned )";
+            }
+          ?>:
+      </h2>
+      <p>
+        <?php
+          echo "<table border = \"center\" bgcolor = \"#222244\" width = \"80%\\
+" align = \"center\">";
+          while($row = mysqli_fetch_row($result))
+          { echo "<tr>";
+            for ($i = 0; $i < sizeof($row); $i++)
+            {
+              echo "<td>" . $row[$i] . "</td>";
+            }
+ echo "</tr>";
+
+          }
+          echo "</table>";
+        ?>
+
+      </p>
+      <br>
+    </div>
+</div>
+
+</body>
+</html>

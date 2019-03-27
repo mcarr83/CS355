@@ -1,0 +1,431 @@
+//Names: Gabrielle Luna and Michael Carr
+
+Queries:
+
+i. SELECT stations.stationName, COUNT(trip.startStationID) FROM trip JOIN stations WHERE trip.startStationID = R2.stationID GROUP BY startStationID ORDER BY COUNT(trip.startStationID) DESC LIMIT 5;
+ii.  SELECT COUNT(tripID) FROM trip WHERE gender = 1 AND birthYear > 1968;
+iii. SELECT userType, SUM(tripDuration) FROM trip GROUP BY userType;
+iv. SELECT startStationID,  endStationID, COUNT(*) AS cou FROM trip GROUP BY startStationID, endStationID ORDER BY cou DESC;
+iv. SELECT gender, birthYear, AVG(tripDuration/360*7.459) AS avertripDistance FROM trip GROUP BY gender, birthYear ORDER BY avertripDistance DESC;
+iv. SELECT bikeID, COUNT(bikeID) as BikeCount, SUM(tripDuration) AS SumMileage FROM trip GROUP BY bikeID ORDER BY SumMileage DESC;
+v. SELECT bikeID, COUNT(bikeID) AS BikeCount, SUM(tripDuration) AS SumMileage FROM trip GROUP BY bikeID ORDER BY SumMileage DESC;
+vi. SELECT startStationID, endStationID, COUNT(*) AS cou FROM trip WHERE startStationID = endStationID GROUP BY startStationID, endStationID ORDER BY cou DESC;
+vii. SELECT userType, (COUNT(CASE WHEN userType = 'Subscriber' THEN 1 END)/ COUNT(*)) * 100 as ratio FROM trip GROUP BY userType;
+viii. SELECT COUNT(gender) AS FemaleRiders FROM trip WHERE gender = 2 and birthYear > 1999;
+ix. SELECT COUNT(tripDuration) AS BrokenBikes FROM trip WHERE tripDuration < 90;
+x. SELECT COUNT(userType) AS CustWithFees FROM trip WHERE userType = 'Customer' AND tripDuration > 1800;
+
+Create and populate tables
+
+<?php
+
+$dbhost = "localhost";
+$dbuser = "mcarr";
+$dbpass = "ca9587";
+$dbname = 'mcarr';
+
+//make connection
+$connection = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname);
+
+//check connection
+if(!$connection){
+	die("Connection failed: " . mysqli_connect_error());
+}
+
+echo "Connected Successful\n";
+
+// 2. Perform database query
+
+$sql = "CREATE TABLE `trip` (
+  `tripID` int(11) NOT NULL AUTO_INCREMENT,
+  `startStationID` int(11) DEFAULT NULL,
+  `endStationID` int(11) DEFAULT NULL,
+  `tripDuration` int(10) NOT NULL,
+  `startTime` varchar(10) NOT NULL,
+  `stopTime` varchar(10) NOT NULL,
+  `bikeID` int(6) NOT NULL,
+  `userType` varchar(12) NOT NULL,
+  `birthYear` int(5) NOT NULL,
+  `gender` int(1) NOT NULL,
+  PRIMARY KEY (`tripID`),
+  KEY `startStationID` (`startStationID`),
+  KEY `endStationID` (`endStationID`),
+  CONSTRAINT ` trip_ibfk_1` FOREIGN KEY (`startStationID`) REFERENCES `stations` (`stationID`),
+  CONSTRAINT ` trip_ibfk_2` FOREIGN KEY (`endStationID`) REFERENCES `stations` (`stationID`)
+) "
+
+if ($connection->query($sql) === TRUE){
+echo "Success!";
+}
+
+else{
+echo "Fail, go get help";
+}
+
+// 4. Release returned data
+
+// 5. Close database connection
+mysqli_close($connection);
+
+?>
+
+------------------------------------------------------------------
+<?php
+
+$dbhost = "localhost";
+$dbuser = "mcarr";
+$dbpass = "ca9587";
+$dbname = 'mcarr';
+
+$connection = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname);
+
+if(!$connection){
+	die("Connection failed: " . mysqli_connect_error());
+}
+
+echo "Connected Successful\n";
+
+// 2. Perform database query
+
+$sql = "CREATE TABLE `stations` (
+ `stationID` int(11) NOT NULL,
+  `stationName` varchar(50) NOT NULL,
+  `stationLatitude` float NOT NULL,
+  `stationLongitude` float NOT NULL,
+  PRIMARY KEY (`stationID`)
+) "
+if ($connection->query($sql) === TRUE){
+echo "Success!";
+}
+
+else{
+echo "Fail, go get help";
+}
+
+mysqli_close($connection);
+
+?>
+
+-----------------------------------------------------------
+<?php
+
+$dbhost = "localhost";
+$dbuser = "mcarr";
+$dbpass = "ca9587";
+$dbname = 'mcarr';
+
+$connection = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname);
+
+if(!$connection){
+	die("Connection failed: " . mysqli_connect_error());
+}
+
+echo "Connected Successful\n";
+
+
+$sql = " INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (120,'Lexington Ave & Classon Ave',40.6868,-73.9593);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (128,'MacDougal St & Prince St',40.7271,-74.003);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (150,'E 2 St & Avenue C',40.7209,-73.9809);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (151,'Cleveland Pl & Spring St',40.7221,-73.9972);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (157,'Henry St & Atlantic Ave',40.6909,-73.9961);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (173,'Broadway & W 49 St',40.7607,-73.9845);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (217,'Old Fulton St',40.7028,-73.9938);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (223,'W 13 St & 7 Ave',40.7378,-73.9999);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (229,'Great Jones St',40.7274,-73.9938);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (236,'St Marks Pl & 2 Ave',40.7284,-73.9871);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (237,'E 11 St & 2 Ave',40.7305,-73.9867);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (238,'Bank St & Washington St',40.7362,-74.0086);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (239,'Willoughby St & Fleet St',40.692,-73.9813);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (251,'Mott St & Prince St',40.7232,-73.9948);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (259,'South St & Whitehall St',40.7012,-74.0123);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (262,'Washington Park',40.6918,-73.9737);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (264,'Maiden Ln & Pearl St',40.7071,-74.0073);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (265,'Stanton St & Chrystie St',40.7223,-73.9915);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (267,'Broadway & W 36 St',40.751,-73.9877);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (268,'Howard St & Centre St',40.7191,-73.9997);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (274,'Lafayette Ave & Fort Greene Pl',40.6869,-73.9767);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (280,'E 10 St & 5 Ave',40.7333,-73.9951);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (285,'Broadway & E 14 St',40.7345,-73.9907);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (293,'Lafayette St & E 8 St',40.7302,-73.991);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (302,'Avenue D & E 3 St',40.7208,-73.9779);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (304,'Broadway & Battery Pl',40.7046,-74.0136);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (307,'Canal St & Rutgers St',40.7143,-73.9899);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (308,'St James Pl & Oliver St',40.7131,-73.9985);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (312,'Allen St & Stanton St',40.7221,-73.9891);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (317,'E 6 St & Avenue B',40.7245,-73.9819);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (319,'Fulton St & Broadway',40.7111,-74.0094);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (325,'E 19 St & 3 Ave',40.7362,-73.9847);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (331,'Pike St & Monroe St',40.7117,-73.9919);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (334,'W 20 St & 7 Ave',40.7424,-73.9973);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (339,'Avenue D & E 12 St',40.7258,-73.9742);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (350,'Clinton St & Grand St',40.7156,-73.987);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (356,'Bialystoker Pl & Delancey St',40.7162,-73.9826);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (361,'Allen St & Hester St',40.7161,-73.9919);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (363,'West Thames St',40.7083,-74.0171);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (364,'Lafayette Ave & Classon Ave',40.689,-73.9602);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (365,'Fulton St & Grand Ave',40.6822,-73.9615);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (366,'Clinton Ave & Myrtle Ave',40.6933,-73.9689);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (372,'Franklin Ave & Myrtle Ave',40.6945,-73.958);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (379,'W 31 St & 7 Ave',40.7492,-73.9916);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (380,'W 4 St & 7 Ave S',40.734,-74.0029);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (383,'Greenwich Ave & Charles St',40.7352,-74.0003);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (387,'Centre St & Chambers St',40.7127,-74.0046);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (388,'W 26 St & 10 Ave',40.7497,-74.003);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (389,'Broadway & Berry St',40.7104,-73.9652);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (394,'E 9 St & Avenue C',40.7252,-73.9777);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (398,'Atlantic Ave & Furman St',40.6917,-74);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (401,'Allen St & Rivington St',40.7202,-73.99);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (402,'Broadway & E 22 St',40.7403,-73.9895);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (403,'E 2 St & 2 Ave',40.725,-73.9907);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (405,'Washington St & Gansevoort St',40.7393,-74.0081);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (412,'Forsyth St & Canal St',40.7158,-73.9942);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (426,'West St & Chambers St',40.7175,-74.0132);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (433,'E 13 St & Avenue A',40.7296,-73.9806);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (438,'St Marks Pl & 1 Ave',40.7278,-73.9856);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (442,'W 27 St & 7 Ave',40.7466,-73.9939);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (443,'Bedford Ave & S 9 St',40.7085,-73.9641);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (445,'E 10 St & Avenue A',40.7274,-73.9814);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (447,'8 Ave & W 52 St',40.7637,-73.9852);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (450,'W 49 St & 8 Ave',40.7623,-73.9879);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (458,'11 Ave & W 27 St',40.7514,-74.0052);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (460,'S 4 St & Wythe Ave',40.7129,-73.9659);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (461,'E 20 St & 2 Ave',40.7359,-73.982);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (465,'Broadway & W 41 St',40.7551,-73.9866);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (466,'W 25 St & 6 Ave',40.744,-73.9914);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (469,'Broadway & W 53 St',40.7634,-73.9827);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (470,'W 20 St & 8 Ave',40.7435,-74);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (473,'Rivington St & Chrystie St',40.7211,-73.9919);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (474,'5 Ave & E 29 St',40.7452,-73.9868);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (477,'W 41 St & 8 Ave',40.7564,-73.99);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (480,'W 53 St & 10 Ave',40.7667,-73.9906);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (481,'S 3 St & Bedford Ave',40.7126,-73.9626);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (482,'W 15 St & 7 Ave',40.7394,-73.9993);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (487,'E 20 St & FDR Drive',40.7331,-73.9757);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (490,'8 Ave & W 33 St',40.7516,-73.9939);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (492,'W 33 St & 7 Ave',40.7502,-73.9909);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (493,'W 45 St & 6 Ave',40.7568,-73.9829);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (501,'FDR Drive & E 35 St',40.7442,-73.9712);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (504,'1 Ave & E 16 St',40.7322,-73.9817);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (518,'E 39 St & 2 Ave',40.7478,-73.9734);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (529,'W 42 St & 8 Ave',40.7576,-73.991);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (530,'11 Ave & W 59 St',40.7715,-73.9905);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (534,'Water - Whitehall Plaza',40.7025,-74.0127);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (2008,'Little West St & 1 Pl',40.7057,-74.0168);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3046,'Marcus Garvey Blvd & Macon St',40.6826,-73.938);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3047,'Halsey St & Tompkins Ave',40.6824,-73.9441);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3048,'Putnam Ave & Nostrand Ave',40.684,-73.9498);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3057,'Kosciuszko St & Tompkins Ave',40.6913,-73.9452);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3059,'Pulaski St & Marcus Garvey Blvd',40.6934,-73.9399);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3075,'Division Ave & Marcy Ave',40.7071,-73.958);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3083,'Bushwick Ave & Powers St',40.7125,-73.941);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3087,'Metropolitan Ave & Meeker Ave',40.7141,-73.9523);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3093,'N 6 St & Bedford Ave',40.7175,-73.9585);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3095,'Graham Ave & Herbert St',40.7193,-73.945);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3115,'India St & Manhattan Ave',40.7323,-73.9551);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3116,'Huron St & Franklin St',40.7327,-73.9583);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3121,'Jackson Ave & 46 Rd',40.7452,-73.9473);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3124,'46 Ave & 5 St',40.7473,-73.9545);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3167,'Amsterdam Ave & W 73 St',40.7797,-73.9809);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3170,'W 84 St & Columbus Ave',40.785,-73.9728);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3171,'Amsterdam Ave & W 82 St',40.7852,-73.9767);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3241,'Monroe St & Tompkins Ave',40.6862,-73.9447);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3242,'Schermerhorn St & Court St',40.691,-73.9918);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3244,'University Pl & E 8 St',40.7314,-73.9949);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3249,'Verona Pl & Fulton St',40.6804,-73.9477);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3256,'Pier 40 - Hudson River Park',40.7277,-74.0113);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3318,'2 Ave & E 96 St',40.784,-73.9472);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3356,'Amsterdam Ave & W 66 St',40.7747,-73.9847);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3357,'W 106 St & Amsterdam Ave',40.8008,-73.9664);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3365,'3 St & 7 Ave',40.6704,-73.9784);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3376,'E 65 St & 2 Ave',40.7647,-73.9622);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3384,'Smith St & 3 St',40.6787,-73.996);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3387,'E 106 St & Madison Ave',40.7934,-73.9494);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3389,'Carroll St & Columbia St',40.683,-74.0035);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3390,'E 109 St & 3 Ave',40.7933,-73.9432);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3396,'Clinton St & 4 Place',40.6784,-74.0001);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3400,'E 110 St & Madison Ave',40.7962,-73.9478);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3419,'Douglass St & 4 Ave',40.6793,-73.9815);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3435,'Grand St & Elizabeth St',40.7188,-73.996);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3461,'Murray St & Greenwich St',40.7149,-74.0112);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3467,'W Broadway & Spring Street',40.7249,-74.0017);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3474,'6 Ave & Spring St',40.7253,-74.0041);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3489,'Gold St & Frankfort St',40.7107,-74.0035);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3490,'E 116 St & 2 Ave',40.7969,-73.9373);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3508,'St Nicholas Ave & Manhattan Ave',40.8097,-73.9531);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3518,'Lenox Ave & W 126 St',40.8084,-73.9452);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3521,'Lenox Ave & W 111 St',40.7988,-73.9523);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3526,'31 St & 23 Ave',40.7748,-73.9126);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3532,'Ditmars Blvd & 19 St',40.7814,-73.9183);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3539,'W 116 St & Amsterdam Ave',40.8068,-73.9607);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3544,'Underhill Ave & Pacific St',40.6805,-73.9647);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3553,'Frederick Douglass Blvd & W 112 St',40.8017,-73.9571);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3554,'Vernon Blvd & 41 Rd',40.7552,-73.9486);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3558,'Bergen St & Vanderbilt Ave',40.6794,-73.968);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3561,'37 Ave & 35 St',40.7531,-73.928);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3565,'36 Ave & 10 St',40.7614,-73.9411);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3566,'Crescent St & 35 Ave',40.7596,-73.9321);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3569,'Franklin Ave & St Marks Ave',40.6758,-73.9562);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3572,'34 Ave & 38 St',40.7569,-73.9216);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3581,'Underhill Ave & Lincoln Pl',40.674,-73.9671);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3597,'43 St & Broadway',40.7577,-73.9166);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3598,'Newton Rd & 44 St',40.7596,-73.9143);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3608,'5 St & 51 Ave',40.7424,-73.9566);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3610,'Vernon Blvd & 30 Rd',40.7708,-73.9342);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3613,'Center Blvd & 48 Ave',40.745,-73.9575);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3614,'Crescent St & 30 Ave',40.7687,-73.925);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3625,'28 St & 40 Ave',40.7526,-73.9364);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3632,'E 12 St & Avenue B',40.7281,-73.9788);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3659,'W 17 St & 9 Ave',40.743,-74.0041);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3660,'W 16 St & 8 Ave',40.741,-74.0014);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3668,'Leonard St & Nassau Ave',40.724,-73.9498);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3676,'Van Brunt St & Van Dyke St',40.6758,-74.0147);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3686,'Gansevoort St & Hudson St',40.7394,-74.0051);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3687,'E 33 St & 1 Ave',40.7432,-73.9745);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3688,'2 Ave & E 55 St',40.7579,-73.9664);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3690,'Park Pl & Church St',40.7133,-74.0094);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3695,'E 5 St & 2 Ave',40.7269,-73.9892);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3701,'Cliff St & Fulton St',40.7083,-74.005);
+INSERT INTO `stations` (`stationID`,`stationName`,`stationLatitude`,`stationLongitude`) VALUES (3705,'Thompson St & Bleecker St',40.7284,-73.9997);"
+if ($connection->query($sql) === TRUE){
+echo "Success!";
+}
+
+else{
+echo "Fail, go get help";
+}
+
+mysqli_close($connection);
+
+?>
+
+----------------------------------------------------------
+<?php
+
+$dbhost = "localhost";
+$dbuser = "mcarr";
+$dbpass = "ca9587";
+$dbname = 'mcarr';
+
+$connection = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname);
+
+if(!$connection){
+	die("Connection failed: " . mysqli_connect_error());
+}
+
+echo "Connected Successful\n";
+
+
+$sql = " INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (4,308,3690,436,'00:21.7','07:38.6',28866,'Subscriber',1984,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (7,3526,3532,233,'00:27.3','04:20.7',29789,'Subscriber',1989,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (9,285,405,1127,'00:31.0','19:18.5',25039,'Subscriber',1982,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (10,319,426,423,'00:42.2','07:45.7',20508,'Subscriber',1974,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (16,3558,3396,893,'01:20.0','16:13.4',17360,'Customer',1987,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (18,350,473,401,'01:32.9','08:14.4',29786,'Subscriber',1984,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (19,3384,3389,353,'01:46.9','07:40.3',25552,'Subscriber',1985,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (20,350,308,252,'02:03.8','06:15.9',32175,'Subscriber',1982,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (21,302,388,1585,'02:07.5','28:33.1',26483,'Subscriber',1985,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (22,236,473,278,'02:19.8','06:58.5',33686,'Subscriber',1997,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (23,379,334,213,'02:22.8','05:56.2',29390,'Subscriber',1982,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (24,438,383,1250,'02:21.3','23:12.3',33149,'Subscriber',1968,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (25,3561,3561,622,'02:30.2','12:52.5',27107,'Subscriber',1996,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (29,3256,238,447,'02:42.7','10:10.5',16726,'Customer',1969,0);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (34,412,319,363,'02:55.2','08:58.9',17716,'Subscriber',1993,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (35,317,356,366,'02:56.6','09:03.3',33931,'Subscriber',1961,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (36,293,433,372,'02:57.7','09:10.0',32520,'Subscriber',1989,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (37,236,317,304,'02:57.8','08:02.7',15747,'Subscriber',1997,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (39,504,307,769,'03:14.3','16:03.8',29156,'Subscriber',1992,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (43,3521,3539,764,'03:36.6','16:20.6',25970,'Customer',1969,0);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (44,3526,3532,347,'03:40.3','09:27.7',17996,'Subscriber',1988,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (45,3526,3532,326,'03:40.6','09:07.1',33723,'Subscriber',1983,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (46,251,450,2146,'03:42.0','39:28.1',29857,'Subscriber',1965,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (47,3256,238,369,'03:52.7','10:02.3',18612,'Customer',1969,0);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (49,151,3659,875,'03:56.0','18:32.0',34020,'Subscriber',1990,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (52,433,433,549,'04:04.6','13:14.4',34044,'Subscriber',1985,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (55,3614,3566,302,'04:26.2','09:28.8',26649,'Subscriber',1989,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (56,438,401,332,'04:29.4','10:02.0',27863,'Subscriber',1989,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (58,3614,3610,491,'04:33.8','12:44.9',28368,'Subscriber',1966,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (61,3687,259,1166,'04:45.1','24:11.5',33887,'Subscriber',1963,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (67,363,2008,116,'05:15.0','07:11.4',34042,'Subscriber',1966,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (68,307,251,517,'05:12.6','13:50.5',16115,'Subscriber',1994,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (76,379,3490,1567,'05:50.6','31:58.3',27469,'Subscriber',1994,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (77,3087,3241,1201,'05:52.5','25:53.6',31584,'Subscriber',1986,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (81,458,490,430,'06:08.2','13:18.6',27859,'Subscriber',1963,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (84,3569,3048,464,'06:19.2','14:04.1',18583,'Subscriber',1993,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (85,450,473,2021,'06:26.9','40:08.2',28627,'Subscriber',1988,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (89,474,480,898,'06:32.0','21:30.1',27748,'Subscriber',1974,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (91,438,128,569,'06:44.9','16:14.5',32945,'Subscriber',1993,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (92,236,304,2226,'06:40.7','43:47.3',32662,'Subscriber',1984,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (93,293,529,1290,'06:41.5','28:11.9',33243,'Subscriber',1999,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (94,470,280,532,'06:45.2','15:37.3',30341,'Subscriber',1976,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (96,293,529,1285,'06:52.4','28:18.0',26941,'Subscriber',1999,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (97,530,363,1995,'06:55.4','40:10.6',34725,'Subscriber',1969,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (99,474,477,508,'07:06.1','15:34.2',28378,'Subscriber',1987,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (100,3608,3608,1665,'07:07.8','34:53.7',34670,'Subscriber',1991,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (102,438,128,519,'07:12.0','15:51.5',32749,'Subscriber',1993,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (103,3581,3544,235,'07:13.4','11:08.6',33797,'Subscriber',1993,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (105,460,443,329,'07:14.6','12:43.8',30548,'Subscriber',1993,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (107,3581,3544,215,'07:18.4','10:54.0',34267,'Subscriber',1993,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (108,268,312,495,'07:24.6','15:40.6',14977,'Subscriber',1994,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (112,307,3116,1533,'07:45.8','33:19.0',15185,'Subscriber',1973,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (113,2008,534,278,'07:49.7','12:27.9',34042,'Subscriber',1966,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (115,3435,3701,1873,'07:52.7','39:05.7',34093,'Subscriber',1968,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (117,3660,477,646,'07:53.9','18:40.7',30984,'Subscriber',1989,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (119,334,402,222,'07:45.0','11:27.1',29390,'Subscriber',1990,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (120,492,312,1320,'07:55.8','29:56.7',27276,'Subscriber',1986,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (123,365,3046,692,'08:11.7','19:44.6',33969,'Subscriber',1988,0);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (125,128,3474,86,'08:11.9','09:38.9',31226,'Subscriber',1969,0);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (130,217,217,1849,'08:36.9','39:26.2',25080,'Customer',2000,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (131,285,151,465,'08:44.5','16:29.7',32233,'Subscriber',1993,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (134,3532,3532,1307,'08:54.5','30:42.1',32632,'Customer',1987,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (136,3171,3171,1633,'09:02.4','36:16.3',31495,'Customer',1981,0);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (139,530,3688,1653,'09:09.6','36:42.6',34712,'Subscriber',1989,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (140,470,3244,432,'09:15.7','16:28.0',26401,'Customer',1991,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (143,317,285,706,'09:27.7','21:14.3',29976,'Subscriber',2001,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (145,317,285,701,'09:32.9','21:14.5',25255,'Subscriber',2001,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (147,3435,293,734,'09:38.2','21:52.9',34258,'Subscriber',1967,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (151,379,379,205,'09:55.5','13:21.1',18007,'Subscriber',1969,0);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (157,387,3695,957,'10:16.5','26:14.5',24904,'Subscriber',1979,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (158,3419,460,1508,'10:18.0','35:26.7',20958,'Subscriber',1988,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (160,217,3121,2019,'10:27.0','44:06.7',32663,'Subscriber',1972,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (161,237,3695,198,'10:28.0','13:46.8',32375,'Subscriber',1991,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (162,3093,3093,210,'10:30.0','14:00.8',30546,'Subscriber',1979,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (163,3419,460,1519,'10:30.7','35:50.7',28323,'Customer',1988,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (164,3565,3614,672,'10:40.2','21:53.1',29022,'Subscriber',1973,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (167,317,490,1110,'10:54.0','29:24.1',30003,'Subscriber',1981,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (171,3467,265,375,'11:13.3','17:28.9',34406,'Subscriber',1993,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (172,389,364,689,'11:18.1','22:47.8',34755,'Subscriber',1995,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (173,3695,3686,1505,'11:19.2','36:24.5',28911,'Customer',1996,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (174,3705,223,442,'11:20.0','18:42.4',32964,'Subscriber',2000,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (175,438,518,714,'11:20.2','23:14.5',20285,'Subscriber',1990,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (176,293,331,800,'11:20.9','24:41.3',16924,'Subscriber',1990,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (178,389,364,689,'11:25.8','22:55.1',31300,'Subscriber',1995,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (180,308,3701,224,'11:30.9','15:15.1',17583,'Subscriber',1992,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (183,3705,3705,1063,'11:40.1','29:23.4',34702,'Subscriber',1995,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (185,389,3057,825,'11:51.1','25:36.5',34707,'Subscriber',1985,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (186,285,461,222,'11:51.2','15:33.3',33233,'Subscriber',1983,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (189,405,403,703,'12:04.4','23:47.5',16344,'Subscriber',1996,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (192,238,325,916,'12:11.0','27:27.7',33883,'Subscriber',1986,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (193,3566,3083,1491,'12:14.6','37:06.5',33989,'Subscriber',1989,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (194,405,445,1969,'12:31.2','45:20.3',32861,'Subscriber',1992,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (195,3047,3095,952,'12:32.4','28:25.0',34766,'Subscriber',1995,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (202,3695,150,411,'13:24.8','20:16.1',33008,'Subscriber',1978,1);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (203,387,229,2185,'13:28.9','49:54.4',27043,'Customer',1969,0);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (206,3695,150,398,'13:46.1','20:24.4',15520,'Subscriber',1971,2);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (210,3659,379,1287,'14:03.7','35:31.0',27201,'Customer',1969,0);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (211,3659,379,1312,'14:03.8','35:55.9',16744,'Customer',1969,0);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (214,3659,379,1279,'14:05.8','35:25.5',27545,'Customer',1969,0);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (215,387,229,1121,'14:06.5','32:48.0',25177,'Customer',1969,0);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (221,3659,379,1232,'14:19.2','34:51.8',17552,'Customer',1969,0);
+INSERT INTO `trip` (`tripID`,`startStationID`,`endStationID`,`tripDuration`,`startTime`,`stopTime`,`bikeID`,`userType`,`birthYear`,`gender`) VALUES (222,128,3474,82,'14:22.0','15:44.1',32606,'Subscriber',1969,0);"
+if ($connection->query($sql) === TRUE){
+echo "Success!";
+}
+
+else{
+echo "Fail, go get help";
+}
+
+mysqli_close($connection);
+
+?>
+
